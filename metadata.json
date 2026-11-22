@@ -1,0 +1,6 @@
+{
+  "name": "ಸರ್ಕಾರಿ ಪ್ರೌಢಶಾಲೆ, ದಾವಣಗೆರೆ | Government High School Davangere",
+  "description": "ಅಧಿಕೃತ ಜಾಲತಾಣ - ಸರ್ಕಾರಿ ಪ್ರೌಢಶಾಲೆ, ದಾವಣಗೆರೆ. Official Portal of Government High School Davangere, Karnataka. Bilingual Kannada-English, notices, Mid-Day Meal, academics, SDMC, and student services.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

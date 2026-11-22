@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-scale: 1rem;
+    --primary-gov: #13325e;
+    --primary-dark: #091a32;
+    --gov-green: #155724;
+    --karnataka-yellow: #f8c01c;
+    --karnataka-red: #d32f2f;
+    --saffron: #d9531e;
+  }
+
+  html {
+    font-size: var(--font-scale);
+    scroll-behavior: smooth;
+    font-family: 'Noto Sans Kannada', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  }
+
+  /* High Contrast Accessibility Mode (WCAG AAA Compliance) */
+  html[data-theme="contrast"] {
+    filter: contrast(120%);
+  }
+  
+  html[data-theme="contrast"] body {
+    background-color: #000000 !important;
+    color: #ffff00 !important;
+  }
+
+  html[data-theme="contrast"] .bg-white,
+  html[data-theme="contrast"] .bg-slate-50,
+  html[data-theme="contrast"] .bg-slate-100,
+  html[data-theme="contrast"] .bg-blue-50,
+  html[data-theme="contrast"] .bg-amber-50,
+  html[data-theme="contrast"] .bg-emerald-50,
+  html[data-theme="contrast"] .bg-stone-50 {
+    background-color: #0d0d0d !important;
+    color: #ffff00 !important;
+    border-color: #ffff00 !important;
+  }
+
+  html[data-theme="contrast"] p,
+  html[data-theme="contrast"] span,
+  html[data-theme="contrast"] div,
+  html[data-theme="contrast"] td,
+  html[data-theme="contrast"] th,
+  html[data-theme="contrast"] label,
+  html[data-theme="contrast"] li {
+    color: #ffff00 !important;
+  }
+
+  html[data-theme="contrast"] h1,
+  html[data-theme="contrast"] h2,
+  html[data-theme="contrast"] h3,
+  html[data-theme="contrast"] h4,
+  html[data-theme="contrast"] strong {
+    color: #ffffff !important;
+  }
+
+  html[data-theme="contrast"] .border-slate-200,
+  html[data-theme="contrast"] .border-slate-300,
+  html[data-theme="contrast"] .border-blue-200,
+  html[data-theme="contrast"] .border-amber-200,
+  html[data-theme="contrast"] .border-amber-300 {
+    border-color: #ffff00 !important;
+  }
+
+  html[data-theme="contrast"] input,
+  html[data-theme="contrast"] select,
+  html[data-theme="contrast"] textarea {
+    background-color: #000000 !important;
+    color: #ffff00 !important;
+    border-color: #ffff00 !important;
+  }
+
+  html[data-theme="contrast"] a,
+  html[data-theme="contrast"] button {
+    outline-color: #ffff00 !important;
+  }
+}
+
+/* Custom Print styles for Official Circulars, Application Slips & Report Cards */
+@media print {
+  header, nav, footer, .ticker-band, .no-print, button, form {
+    display: none !important;
+  }
+  
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11pt;
+  }
+
+  .printable-area {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 16px !important;
+    border: 1px solid #999999 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+}
