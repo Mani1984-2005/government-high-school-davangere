@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { AppProvider, useApp } from './context/AppContext';
+import { AppProvider } from './context/AppContext';
+import { PortalProvider, usePortal } from './context/AuthContext';
 import { GovHeader } from './components/GovHeader';
 import { Navbar } from './components/Navbar';
 import { LiveTicker } from './components/LiveTicker';
 import { HeroSection } from './components/HeroSection';
+import { QuickAccessSection } from './components/QuickAccessSection';
 import { AboutSection } from './components/AboutSection';
 import { NoticesSection } from './components/NoticesSection';
 import { FAQSection } from './components/FAQSection';
@@ -18,17 +20,70 @@ import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
 import { OnlineServicesModal } from './components/OnlineServicesModal';
 import { AdminVerificationModal } from './components/AdminVerificationModal';
+import { StudentLoginPage } from './components/portals/StudentLoginPage';
+import { StudentDashboard } from './components/portals/StudentDashboard';
+import { StaffLoginPage } from './components/portals/StaffLoginPage';
+import { StaffDashboard } from './components/portals/StaffDashboard';
+import { UnauthorizedView } from './components/portals/UnauthorizedView';
+import { SelfRegistrationPage } from './components/portals/SelfRegistrationPage';
+import { RegistrationStatusPage } from './components/portals/RegistrationStatusPage';
 
 const PortalShell: React.FC = () => {
-  const { lang } = useApp();
+  const { route, hasRole, navigateToHomeSection } = usePortal();
   const [isServiceModalOpen, setIsServiceModalOpen] = useState<boolean>(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState<boolean>(false);
 
-  const scrollToNotices = () => {
-    const el = document.getElementById('notices');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
+  const renderMainContent = () => {
+    if (route === '/student-portal') {
+      return <StudentLoginPage />;
     }
+    if (route === '/student-register') {
+      return <SelfRegistrationPage mode="student" />;
+    }
+    if (route === '/parent-register') {
+      return <SelfRegistrationPage mode="parent" />;
+    }
+    if (route === '/student-dashboard') {
+      return hasRole('student') ? (
+        <StudentDashboard />
+      ) : (
+        <UnauthorizedView requiredRole="student" />
+      );
+    }
+    if (route === '/staff-portal') {
+      return <StaffLoginPage />;
+    }
+    if (route === '/staff-register') {
+      return <SelfRegistrationPage mode="staff" />;
+    }
+    if (route === '/staff-dashboard') {
+      return hasRole('staff') ? (
+        <StaffDashboard />
+      ) : (
+        <UnauthorizedView requiredRole="staff" />
+      );
+    }
+    if (route === '/registration-status') {
+      return <RegistrationStatusPage />;
+    }
+
+    return (
+      <>
+        <HeroSection onOpenServiceModal={() => setIsServiceModalOpen(true)} />
+        <QuickAccessSection onOpenServiceModal={() => setIsServiceModalOpen(true)} />
+        <AboutSection />
+        <NoticesSection />
+        <FAQSection />
+        <AcademicsSection />
+        <MidDayMealSection />
+        <WelfareSchemesSection />
+        <StudentProgressTracker />
+        <SdmcSection />
+        <FacultySection />
+        <GallerySection />
+        <ContactSection />
+      </>
+    );
   };
 
   return (
@@ -37,33 +92,22 @@ const PortalShell: React.FC = () => {
 
       <Navbar onOpenServiceModal={() => setIsServiceModalOpen(true)} />
 
-      <LiveTicker onNoticeClick={scrollToNotices} />
+      {route === '/' && (
+        <LiveTicker onNoticeClick={() => navigateToHomeSection('notices')} />
+      )}
 
       <main id="main-content" tabIndex={-1} className="flex-1 focus:outline-none">
-        <HeroSection lang={lang} onOpenServiceModal={() => setIsServiceModalOpen(true)} />
-        <AboutSection />
-        <NoticesSection lang={lang} />
-        <FAQSection />
-        <MidDayMealSection lang={lang} />
-        <WelfareSchemesSection lang={lang} />
-        <AcademicsSection lang={lang} />
-        <StudentProgressTracker lang={lang} />
-        <SdmcSection lang={lang} />
-        <FacultySection lang={lang} />
-        <GallerySection lang={lang} />
-        <ContactSection lang={lang} />
+        {renderMainContent()}
       </main>
 
-      <Footer lang={lang} onOpenAdminModal={() => setIsAdminModalOpen(true)} />
+      <Footer onOpenAdminModal={() => setIsAdminModalOpen(true)} />
 
       <OnlineServicesModal
-        lang={lang}
         isOpen={isServiceModalOpen}
         onClose={() => setIsServiceModalOpen(false)}
       />
 
       <AdminVerificationModal
-        lang={lang}
         isOpen={isAdminModalOpen}
         onClose={() => setIsAdminModalOpen(false)}
       />
@@ -74,7 +118,9 @@ const PortalShell: React.FC = () => {
 export default function App() {
   return (
     <AppProvider>
-      <PortalShell />
+      <PortalProvider>
+        <PortalShell />
+      </PortalProvider>
     </AppProvider>
   );
 }

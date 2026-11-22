@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ChevronDown, HelpCircle, ChevronsUpDown } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { ChevronDown, HelpCircle, ChevronsUpDown, Keyboard } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { FAQ_ITEMS } from '../data/schoolData';
 import { FaqItem } from '../types';
@@ -21,6 +21,16 @@ export const FAQSection: React.FC = () => {
   const [openIds, setOpenIds] = useState<Record<string, boolean>>({
     'faq-01': true,
   });
+  const [srStatus, setSrStatus] = useState<string>('');
+
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const accordionRef = useRef<HTMLDivElement | null>(null);
+  const firstAccordionBtnRef = useRef<HTMLButtonElement | null>(null);
+  const triggerRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const panelRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const toggleBtnRef = useRef<HTMLButtonElement | null>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const pendingFocusRef = useRef<boolean>(false);
 
   const filterTabs: TabItem<FaqFilter>[] = [
     { id: 'all', label: t.faq_filter_all },
@@ -36,6 +46,91 @@ export const FAQSection: React.FC = () => {
 
   const allVisibleOpen =
     filteredFaqs.length > 0 && filteredFaqs.every((item) => Boolean(openIds[item.id]));
+
+  const scrollIntoViewRespectingMotion = (element: HTMLElement | null) => {
+    if (!element) return;
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    element.scrollIntoView({
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+      block: 'start',
+    });
+  };
+
+  const focusAccordionTarget = () => {
+    const target = firstAccordionBtnRef.current ?? toggleBtnRef.current;
+    scrollIntoViewRespectingMotion(sectionRef.current);
+    target?.focus({ preventScroll: true });
+    setSrStatus(t.faq_shortcut_focused_sr);
+  };
+
+  useEffect(() => {
+    if (isSectionOpen && pendingFocusRef.current) {
+      pendingFocusRef.current = false;
+      const frame = window.requestAnimationFrame(() => {
+        focusAccordionTarget();
+      });
+      return () => window.cancelAnimationFrame(frame);
+    }
+  }, [isSectionOpen]);
+
+  useEffect(() => {
+    const handleGlobalShortcut = (event: KeyboardEvent) => {
+      if (event.isComposing || event.repeat) return;
+
+      const isSlash = event.key === '/' || (event.code === 'Slash' && !event.shiftKey);
+      if (!event.altKey || event.ctrlKey || event.metaKey || !isSlash) {
+        return;
+      }
+
+      event.preventDefault();
+
+      const activeElement = document.activeElement as HTMLElement | null;
+      const isFocusedInsideAccordion = Boolean(
+        activeElement && accordionRef.current?.contains(activeElement)
+      );
+
+      if (isFocusedInsideAccordion) {
+        const previousTarget = previousFocusRef.current;
+        if (
+          previousTarget &&
+          previousTarget.isConnected &&
+          !accordionRef.current?.contains(previousTarget)
+        ) {
+          previousTarget.focus({ preventScroll: false });
+        } else {
+          const fallbackMain = document.getElementById('main-content');
+          if (fallbackMain) {
+            fallbackMain.focus({ preventScroll: true });
+          } else {
+            activeElement?.blur();
+          }
+        }
+        setSrStatus(t.faq_shortcut_restored_sr);
+        return;
+      }
+
+      if (
+        activeElement &&
+        activeElement !== document.body &&
+        !accordionRef.current?.contains(activeElement)
+      ) {
+        previousFocusRef.current = activeElement;
+      }
+
+      if (!isSectionOpen) {
+        pendingFocusRef.current = true;
+        setIsSectionOpen(true);
+        return;
+      }
+
+      focusAccordionTarget();
+    };
+
+    window.addEventListener('keydown', handleGlobalShortcut);
+    return () => window.removeEventListener('keydown', handleGlobalShortcut);
+  }, [isSectionOpen, t.faq_shortcut_focused_sr, t.faq_shortcut_restored_sr]);
 
   const toggleItem = (id: string) => {
     setOpenIds((prev) => ({
@@ -55,13 +150,59 @@ export const FAQSection: React.FC = () => {
     });
   };
 
+  const handleDrawerKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (
+      event.key !== 'Escape' ||
+      event.defaultPrevented ||
+      event.nativeEvent.isComposing ||
+      !isSectionOpen
+    ) {
+      return;
+    }
+
+    const anyExpanded = Object.values(openIds).some(Boolean);
+    if (!anyExpanded) {
+      return;
+    }
+
+    const activeElement = document.activeElement as HTMLElement | null;
+
+    // Identify if focus is currently on an accordion trigger or inside an expanded panel
+    const activeExpandedItem = filteredFaqs.find((item) => {
+      if (!openIds[item.id]) return false;
+      const triggerEl = triggerRefs.current[item.id];
+      const panelEl = panelRefs.current[item.id];
+      return Boolean(
+        activeElement && (activeElement === triggerEl || panelEl?.contains(activeElement))
+      );
+    });
+
+    const firstVisibleExpanded = filteredFaqs.find((item) => Boolean(openIds[item.id]));
+    const targetId = activeExpandedItem?.id ?? firstVisibleExpanded?.id ?? filteredFaqs[0]?.id;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    setOpenIds({});
+    if (targetId) {
+      triggerRefs.current[targetId]?.focus();
+    }
+    setSrStatus(t.faq_escape_closed_sr);
+  };
+
   return (
     <section
+      ref={sectionRef}
       id="faq"
       aria-labelledby="faq-section-heading"
-      className="py-12 bg-slate-50 border-b border-slate-200"
+      aria-keyshortcuts="Alt+/"
+      className="py-12 bg-slate-50 border-b border-slate-200 scroll-mt-20"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div role="status" aria-live="polite" className="sr-only">
+          {srStatus}
+        </div>
+
         <SectionHeading
           headingId="faq-section-heading"
           kickerEn="PARENT & STUDENT HELP DESK"
@@ -69,23 +210,38 @@ export const FAQSection: React.FC = () => {
           title={t.faq_heading}
           subtitle={t.faq_sub}
           action={
-            <Button
-              variant={isSectionOpen ? 'outline' : 'primary'}
-              size="sm"
-              aria-expanded={isSectionOpen}
-              aria-controls="faq-homepage-drawer"
-              onClick={() => setIsSectionOpen((prev) => !prev)}
-              leftIcon={<HelpCircle className="w-4 h-4" />}
-              rightIcon={
-                <ChevronDown
-                  className={`w-4 h-4 transition-transform duration-200 motion-reduce:transition-none ${
-                    isSectionOpen ? 'rotate-180' : ''
-                  }`}
-                />
-              }
-            >
-              {isSectionOpen ? t.faq_toggle_hide : t.faq_toggle_show}
-            </Button>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <div
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-white border border-slate-200 text-xs text-slate-600 shadow-2xs"
+                title={t.faq_shortcut_hint}
+              >
+                <Keyboard className="w-3.5 h-3.5 text-[#13325e]" aria-hidden="true" />
+                <span>{t.faq_shortcut_label}</span>
+                <kbd className="font-mono text-[11px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 border border-slate-300 text-[#13325e]">
+                  Alt + /
+                </kbd>
+              </div>
+
+              <Button
+                ref={toggleBtnRef}
+                variant={isSectionOpen ? 'outline' : 'primary'}
+                size="sm"
+                aria-expanded={isSectionOpen}
+                aria-controls="faq-homepage-drawer"
+                aria-keyshortcuts="Alt+/"
+                onClick={() => setIsSectionOpen((prev) => !prev)}
+                leftIcon={<HelpCircle className="w-4 h-4" />}
+                rightIcon={
+                  <ChevronDown
+                    className={`w-4 h-4 transition-transform duration-200 motion-reduce:transition-none ${
+                      isSectionOpen ? 'rotate-180' : ''
+                    }`}
+                  />
+                }
+              >
+                {isSectionOpen ? t.faq_toggle_hide : t.faq_toggle_show}
+              </Button>
+            </div>
           }
         />
 
@@ -93,6 +249,7 @@ export const FAQSection: React.FC = () => {
         <div
           id="faq-homepage-drawer"
           aria-hidden={!isSectionOpen}
+          onKeyDown={handleDrawerKeyDown}
           className={`grid transition-[grid-template-rows,opacity] duration-200 ease-out motion-reduce:transition-none ${
             isSectionOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
           }`}
@@ -126,9 +283,11 @@ export const FAQSection: React.FC = () => {
 
               {/* Accordion List */}
               <div
+                ref={accordionRef}
                 id={`faq-filter-panel-${selectedCategory}`}
                 role="tabpanel"
                 aria-labelledby={`faq-filter-tab-${selectedCategory}`}
+                aria-keyshortcuts="Alt+/"
                 className="space-y-3"
               >
                 {filteredFaqs.map((item, idx) => {
@@ -147,10 +306,17 @@ export const FAQSection: React.FC = () => {
                     >
                       <h3 className="m-0">
                         <button
+                          ref={(el) => {
+                            triggerRefs.current[item.id] = el;
+                            if (idx === 0) {
+                              firstAccordionBtnRef.current = el;
+                            }
+                          }}
                           id={buttonId}
                           type="button"
                           aria-expanded={isOpen}
                           aria-controls={panelId}
+                          aria-keyshortcuts={idx === 0 ? 'Alt+/' : undefined}
                           onClick={() => toggleItem(item.id)}
                           className="w-full min-h-[52px] px-5 py-4 text-left flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors duration-150 motion-reduce:transition-none cursor-pointer"
                         >
@@ -179,6 +345,9 @@ export const FAQSection: React.FC = () => {
                       </h3>
 
                       <div
+                        ref={(el) => {
+                          panelRefs.current[item.id] = el;
+                        }}
                         id={panelId}
                         role="region"
                         aria-labelledby={buttonId}

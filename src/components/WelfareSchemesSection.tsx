@@ -1,64 +1,80 @@
 import React from 'react';
-import { Language } from '../types';
-import { UI_STRINGS } from '../data/translations';
+import {
+  Utensils,
+  BookOpen,
+  GraduationCap,
+  Laptop,
+  Award,
+  Stethoscope,
+  ExternalLink,
+} from 'lucide-react';
+import { useApp } from '../context/AppContext';
 import { WELFARE_SCHEMES } from '../data/schoolData';
+import { Card, SectionHeading } from './ui';
 
-interface WelfareSchemesSectionProps {
-  lang: Language;
-}
+const SCHEME_ICONS: Record<string, React.ReactNode> = {
+  'w-01': <Utensils className="w-5 h-5 text-[#13325e]" />,
+  'w-02': <BookOpen className="w-5 h-5 text-[#13325e]" />,
+  'w-03': <GraduationCap className="w-5 h-5 text-[#13325e]" />,
+  'w-04': <Laptop className="w-5 h-5 text-[#13325e]" />,
+  'w-05': <Award className="w-5 h-5 text-[#13325e]" />,
+  'w-06': <Stethoscope className="w-5 h-5 text-[#13325e]" />,
+};
 
-export const WelfareSchemesSection: React.FC<WelfareSchemesSectionProps> = ({ lang }) => {
-  const t = UI_STRINGS[lang];
+export const WelfareSchemesSection: React.FC = () => {
+  const { t, pick } = useApp();
 
   return (
-    <section id="schemes" className="py-12 bg-white border-b border-slate-200">
+    <section
+      id="schemes"
+      aria-labelledby="schemes-section-heading"
+      className="py-12 bg-white border-b border-slate-200"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        {/* Section Heading */}
-        <div className="mb-8">
-          <div className="flex items-center gap-2 text-xs font-semibold text-emerald-800 uppercase tracking-wider mb-1">
-            <span>GOVERNMENT ENTITLEMENTS</span>
-            <span>·</span>
-            <span>ವಿದ್ಯಾರ್ಥಿ ಸವಲತ್ತುಗಳು</span>
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-[#13325e]">
-            {t.welfare_heading}
-          </h2>
-          <p className="text-sm text-slate-600 mt-1 max-w-3xl">
-            {t.welfare_sub}
-          </p>
-        </div>
+        <SectionHeading
+          headingId="schemes-section-heading"
+          kickerEn="GOVERNMENT ENTITLEMENTS"
+          kickerKn="ವಿದ್ಯಾರ್ಥಿ ಸವಲತ್ತುಗಳು"
+          title={t.welfare_heading}
+          subtitle={t.welfare_sub}
+        />
 
-        {/* 6 Schemes Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {WELFARE_SCHEMES.map((scheme) => (
-            <div
+            <Card
               key={scheme.id}
-              className="bg-slate-50 rounded-lg p-5 border border-slate-200 flex flex-col justify-between hover:border-slate-300 transition-colors shadow-2xs"
+              surface="muted"
+              padding="md"
+              interactive
+              className="flex flex-col justify-between gap-4"
             >
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="w-10 h-10 rounded-md bg-white border border-slate-200 flex items-center justify-center text-xl shadow-2xs">
-                    {scheme.icon}
+                <div className="flex items-center justify-between gap-3">
+                  <div
+                    className="w-10 h-10 rounded-md bg-white border border-slate-200 flex items-center justify-center shrink-0"
+                    aria-hidden="true"
+                  >
+                    {SCHEME_ICONS[scheme.id] || <Award className="w-5 h-5 text-[#13325e]" />}
                   </div>
-                  <span className="text-[11px] font-bold px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded">
-                    {lang === 'kn' ? scheme.badgeKn : scheme.badgeEn}
+                  <span className="text-xs font-semibold text-emerald-900">
+                    {pick(scheme.badgeKn, scheme.badgeEn)}
                   </span>
                 </div>
 
                 <h3 className="text-base font-bold text-[#13325e] leading-snug">
-                  {lang === 'kn' ? scheme.titleKn : scheme.titleEn}
+                  {pick(scheme.titleKn, scheme.titleEn)}
                 </h3>
 
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  {lang === 'kn' ? scheme.descKn : scheme.descEn}
+                  {pick(scheme.descKn, scheme.descEn)}
                 </p>
               </div>
 
-              <div className="pt-4 mt-4 border-t border-slate-200 flex items-center justify-between text-xs">
+              <div className="pt-3 border-t border-slate-200 flex items-center justify-between gap-3 text-xs">
                 <div>
                   <span className="text-slate-500 font-medium">{t.beneficiaries_label} </span>
                   <span className="font-bold text-slate-800">
-                    {lang === 'kn' ? scheme.beneficiariesKn : scheme.beneficiariesEn}
+                    {pick(scheme.beneficiariesKn, scheme.beneficiariesEn)}
                   </span>
                 </div>
 
@@ -67,14 +83,15 @@ export const WelfareSchemesSection: React.FC<WelfareSchemesSectionProps> = ({ la
                     href={scheme.officialLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-bold text-[#13325e] hover:text-amber-600 inline-flex items-center gap-1 cursor-pointer"
+                    title={t.welfare_external_note}
+                    className="font-bold text-[#13325e] hover:text-amber-700 inline-flex items-center gap-1 whitespace-nowrap shrink-0"
                   >
                     <span>{scheme.portalName || 'Portal'}</span>
-                    <span aria-hidden="true">↗</span>
+                    <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
                   </a>
                 )}
               </div>
-            </div>
+            </Card>
           ))}
         </div>
       </div>

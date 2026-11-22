@@ -8,6 +8,7 @@ import {
   GalleryPhoto,
   FaqItem,
   SchoolFacility,
+  AcademicCalendarItem,
 } from '../types';
 import { SCHOOL_MEDIA } from '../assets/media';
 
@@ -657,6 +658,50 @@ export const SCHOOL_FACILITIES: SchoolFacility[] = [
     metricEn: 'Eco Club & Sports',
   },
 ];
+
+export const ACADEMIC_CALENDAR: AcademicCalendarItem[] = [
+  {
+    id: 'cal-01',
+    periodKn: 'ಶೈಕ್ಷಣಿಕ ವರ್ಷದ ಆರಂಭ (ಜೂನ್)',
+    periodEn: 'Academic Inauguration (June · Draft)',
+    titleKn: 'ದಾಖಲಾತಿ, ಉಚಿತ ಪಠ್ಯಪುಸ್ತಕ & ಸಮವಸ್ತ್ರ ವಿತರಣೆ',
+    titleEn: 'Admissions, Free KTBS Textbooks & Uniform Distribution',
+    descKn: '8, 9 ಮತ್ತು 10ನೇ ತರಗತಿಗಳ ತರಗತಿ ಆರಂಭ ಹಾಗೂ ಸರ್ಕಾರಿ ಉಚಿತ ಪಠ್ಯಪುಸ್ತಕ, 2 ಜೊತೆ ಸಮವಸ್ತ್ರ, ಶೂ-ಸಾಕ್ಸ್ ವಿತರಣೆ.',
+    descEn: 'Commencement of Grades 8–10 classes with free KTBS textbooks, 2 sets of uniforms, and shoes/socks distribution.',
+    category: 'admission',
+  },
+  {
+    id: 'cal-02',
+    periodKn: 'ಮಧ್ಯಂತರ ಅವಧಿ (ಸೆಪ್ಟೆಂಬರ್ - ಅಕ್ಟೋಬರ್)',
+    periodEn: 'Mid-Term Phase (September – October)',
+    titleKn: 'ಪ್ರತಿಭಾ ಕಾರಂಜಿ, SA-1 & SSP ವಿದ್ಯಾರ್ಥಿವೇತನ ಇ-ದೃಢೀಕರಣ',
+    titleEn: 'Prathibha Karanji, SA-1 Assessments & SSP e-Attestation',
+    descKn: 'ತಾಲೂಕು/ಜಿಲ್ಲಾ ಮಟ್ಟದ ಪ್ರತಿಭಾ ಕಾರಂಜಿ ಸ್ಪರ್ಧೆಗಳು, SA-1 ಮೌಲ್ಯಮಾಪನ ಮತ್ತು SSP ವಿದ್ಯಾರ್ಥಿವೇತನ ಅರ್ಜಿ ಮಾರ್ಗದರ್ಶನ.',
+    descEn: 'Taluk/District Prathibha Karanji cultural competitions, SA-1 evaluations, and SSP pre-matric scholarship e-attestation drive.',
+    category: 'event',
+  },
+  {
+    id: 'cal-03',
+    periodKn: 'ನವೆಂಬರ್ (ಮೊದಲ ವಾರದಿಂದ)',
+    periodEn: 'November (Preparatory Schedule)',
+    titleKn: '10ನೇ ತರಗತಿ ಪೂರ್ವಸಿದ್ಧತಾ ಪರೀಕ್ಷೆ & ಕನ್ನಡ ರಾಜ್ಯೋತ್ಸವ',
+    titleEn: 'SSLC Preparatory Exams & Karnataka Rajyotsava',
+    descKn: 'KSEAB ನಿರ್ದೇಶನದಂತೆ ಬೆಳಗ್ಗೆ 10:00 ರಿಂದ ಮಧ್ಯಾಹ್ನ 1:15 ರವರೆಗೆ ಪೂರ್ವಸಿದ್ಧತಾ ಪರೀಕ್ಷೆಗಳು ಹಾಗೂ ರಾಜ್ಯೋತ್ಸವ ಆಚರಣೆ.',
+    descEn: 'District-level SSLC preparatory exams (10:00 AM – 1:15 PM per KSEAB circular) and Karnataka Rajyotsava celebrations.',
+    category: 'exam',
+  },
+  {
+    id: 'cal-04',
+    periodKn: 'ವರ್ಷದಲ್ಲಿ ಎರಡು ಬಾರಿ & ವಾರ್ಷಿಕ',
+    periodEn: 'Bi-Annual & Annual Cycle',
+    titleKn: 'RBSK ಆರೋಗ್ಯ ತಪಾಸಣೆ, ಕ್ರೀಡಾಕೂಟ & KSEAB SSLC ಪರೀಕ್ಷೆ',
+    titleEn: 'RBSK Health Checkups, Athletic Meet & KSEAB Final Exams',
+    descKn: 'ವರ್ಷಕ್ಕೆ ಎರಡು ಬಾರಿ RBSK ವೈದ್ಯಕೀಯ ತಪಾಸಣೆ, ವಾರ್ಷಿಕ ಕ್ರೀಡಾಕೂಟ, SA-2 ಹಾಗೂ KSEAB ವಾರ್ಷಿಕ ಮಂಡಳಿ ಪರೀಕ್ಷೆಗಳು.',
+    descEn: 'Bi-annual RBSK pediatric health screenings, annual sports meet, SA-2, and KSEAB final board examinations.',
+    category: 'exam',
+  },
+];
+
 
 
 

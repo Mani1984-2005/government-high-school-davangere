@@ -1,427 +1,445 @@
-import React, { useState, useEffect } from 'react';
-import { Language, ServiceApplication } from '../types';
-import { UI_STRINGS } from '../data/translations';
+import React, { useState } from 'react';
+import { Clock, FileCheck2, Printer, Download, RotateCcw } from 'lucide-react';
+import { useApp } from '../context/AppContext';
 import { SCHOOL_INFO } from '../data/schoolData';
+import {
+  Alert,
+  Button,
+  FormField,
+  INPUT_BASE_CLASS,
+  Modal,
+} from './ui';
 
 interface OnlineServicesModalProps {
-  lang: Language;
   isOpen: boolean;
   onClose: () => void;
 }
 
-const STORAGE_KEY = 'ghs_davangere_service_apps';
-
 export const OnlineServicesModal: React.FC<OnlineServicesModalProps> = ({
-  lang,
   isOpen,
   onClose,
 }) => {
-  const t = UI_STRINGS[lang];
+  const { lang, t, pick } = useApp();
 
   const [reqType, setReqType] = useState('admission');
   const [studentName, setStudentName] = useState('');
-  const [fatherName, setFatherName] = useState('');
+  const [guardianName, setGuardianName] = useState('');
   const [grade, setGrade] = useState('8');
   const [satsNo, setSatsNo] = useState('');
   const [phone, setPhone] = useState('');
   const [details, setDetails] = useState('');
-  const [submittedApp, setSubmittedApp] = useState<ServiceApplication | null>(null);
-  const [viewHistory, setViewHistory] = useState(false);
-  const [savedApplications, setSavedApplications] = useState<ServiceApplication[]>([]);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showSlip, setShowSlip] = useState(false);
 
-  // Escape key handler and body scroll locking
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      window.addEventListener('keydown', handleKeyDown);
+  const serviceChecklist: Record<string, { kn: string[]; en: string[] }> = {
+    admission: {
+      kn: [
+        'ಹಿಂದಿನ ತರಗತಿಯ ಉತ್ತೀರ್ಣ ಅಂಕಪಟ್ಟಿ',
+        'ಹಿಂದಿನ ಶಾಲೆಯ ವರ್ಗಾವಣೆ ಪ್ರಮಾಣಪತ್ರ (TC) ಮತ್ತು SATS ಸಂಖ್ಯೆ',
+        'ಜಾತಿ ಮತ್ತು ಆದಾಯ ಪ್ರಮಾಣಪತ್ರ (ಅನ್ವಯವಾದರೆ) & ಪಾಸ್‌ಪೋರ್ಟ್ ಅಳತೆಯ ಫೋಟೋ',
+      ],
+      en: [
+        'Previous class marks card / progress report',
+        'Transfer Certificate (TC) & SATS enrollment ID from previous school',
+        'Applicable caste/income certificate & passport-size photographs',
+      ],
+    },
+    tc: {
+      kn: [
+        'ಪೋಷಕರ ಸಹಿ ಮಾಡಿದ ಲಿಖಿತ ಕೋರಿಕೆ ಪತ್ರ',
+        'ವಿದ್ಯಾರ್ಥಿಯ SATS ಸಂಖ್ಯೆ ಮತ್ತು ಗ್ರಂಥಾಲಯ/ಪ್ರಯೋಗಾಲಯ ಬಾಕಿ ರಹಿತ ದೃಢೀಕರಣ',
+      ],
+      en: [
+        'Signed written request letter from parent/guardian',
+        'Student SATS ID & library/laboratory clearance',
+      ],
+    },
+    study_cert: {
+      kn: [
+        'ವಿದ್ಯಾರ್ಥಿಯ SATS ಸಂಖ್ಯೆ ಹಾಗೂ ಪ್ರಸ್ತುತ ಶೈಕ್ಷಣಿಕ ವರ್ಷದ ವಿವರ',
+        'ಪೋಷಕರ ಅಥವಾ ವಿದ್ಯಾರ್ಥಿಯ ಗುರುತಿನ ಚೀಟಿ',
+      ],
+      en: [
+        'Student SATS number and current academic year enrollment record',
+        'Parent/student identification proof',
+      ],
+    },
+    scholarship: {
+      kn: [
+        'ಆಧಾರ್ ಕಾರ್ಡ್ (ಬ್ಯಾಂಕ್ ಖಾತೆಗೆ NPCI ಲಿಂಕ್ ಆಗಿರಬೇಕು)',
+        'ಜಾತಿ ಮತ್ತು ಆದಾಯ ಪ್ರಮಾಣಪತ್ರ ಹಾಗೂ ಬ್ಯಾಂಕ್ ಪಾಸ್‌ಬುಕ್ ಪ್ರತಿ',
+      ],
+      en: [
+        'Aadhaar card mapped to student bank account (NPCI seeded)',
+        'Valid caste/income certificate & student bank passbook copy',
+      ],
+    },
+  };
 
-      // Load saved applications from localStorage
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-          setSavedApplications(JSON.parse(raw));
-        }
-      } catch (err) {
-        console.error('Failed to read saved applications', err);
-      }
+  const reqTypeLabels: Record<string, string> = {
+    admission: t.form_type_opt_admission,
+    tc: t.form_type_opt_tc,
+    study_cert: t.form_type_opt_study,
+    scholarship: t.form_type_opt_scholarship,
+  };
+
+  const validate = () => {
+    const nextErrors: Record<string, string> = {};
+    if (studentName.trim().length < 2) {
+      nextErrors.studentName = pick(
+        'ವಿದ್ಯಾರ್ಥಿಯ ಹೆಸರನ್ನು ನಮೂದಿಸಿ.',
+        'Please enter student full name.'
+      );
     }
-    return () => {
-      document.body.style.overflow = '';
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isOpen, onClose]);
+    if (guardianName.trim().length < 2) {
+      nextErrors.guardianName = pick(
+        'ಪೋಷಕರ ಹೆಸರನ್ನು ನಮೂದಿಸಿ.',
+        'Please enter parent/guardian name.'
+      );
+    }
+    if (!/^\d{10}$/.test(phone.trim())) {
+      nextErrors.phone = pick(
+        'ದಯವಿಟ್ಟು ಸರಿಯಾದ 10 ಅಂಕಿಗಳ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ.',
+        'Please enter a valid 10-digit mobile number.'
+      );
+    }
+    if (details.trim().length < 5) {
+      nextErrors.details = pick(
+        'ಕೋರಿಕೆಯ ಸಂಕ್ಷಿಪ್ತ ವಿವರವನ್ನು ನಮೂದಿಸಿ.',
+        'Please provide brief request details.'
+      );
+    }
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  };
 
-  if (!isOpen) return null;
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handlePrepareSlip = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!studentName.trim() || !phone.trim() || phone.trim().length < 10) {
-      return;
-    }
-
-    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-    const newApp: ServiceApplication = {
-      appNo: `GHS-DVG-2025-${randomSuffix}`,
-      type: reqType,
-      studentName: studentName.trim(),
-      fatherName: fatherName.trim(),
-      grade: `${grade}th Standard`,
-      satsNo: satsNo.trim() || 'N/A',
-      mobile: phone.trim(),
-      details: details.trim(),
-      appliedDate: new Date().toLocaleDateString('en-IN', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-      }),
-      status: 'Received',
-    };
-
-    setSubmittedApp(newApp);
-
-    // Persist in localStorage
-    try {
-      const updated = [newApp, ...savedApplications];
-      setSavedApplications(updated);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    } catch (err) {
-      console.error('Failed to save application', err);
-    }
+    if (!validate()) return;
+    setShowSlip(true);
   };
 
-  const handleResetForm = () => {
-    setSubmittedApp(null);
-    setStudentName('');
-    setFatherName('');
-    setSatsNo('');
-    setPhone('');
-    setDetails('');
-    setViewHistory(false);
+  const handleReset = () => {
+    setShowSlip(false);
+    setErrors({});
   };
 
-  const handlePrintReceipt = () => {
-    window.print();
+  const handleDownloadSlipTxt = () => {
+    const lines = [
+      pick(SCHOOL_INFO.nameKn, SCHOOL_INFO.nameEn),
+      `UDISE: ${SCHOOL_INFO.udise} | School Code: ${SCHOOL_INFO.schoolCode}`,
+      '------------------------------------------------------------',
+      t.service_slip_title,
+      `Date Prepared: ${new Date().toLocaleDateString('en-IN')}`,
+      `Service Requested: ${reqTypeLabels[reqType] || reqType}`,
+      `Student Name: ${studentName.trim()}`,
+      `Parent/Guardian: ${guardianName.trim()}`,
+      `Grade: Class ${grade}`,
+      `SATS ID: ${satsNo.trim() || 'Not provided'}`,
+      `Contact Mobile: ${phone.trim()}`,
+      `Remarks: ${details.trim()}`,
+      '------------------------------------------------------------',
+      pick(
+        'ಸೂಚನೆ: ಇದು ಆನ್‌ಲೈನ್ ಸಲ್ಲಿಕೆ ಅಲ್ಲ. ದಯವಿಟ್ಟು ಮೂಲ ದಾಖಲೆಗಳೊಂದಿಗೆ ಸೋಮವಾರ–ಶುಕ್ರವಾರ (10:30 AM – 3:30 PM) ಶಾಲಾ ಕಚೇರಿಗೆ ಭೇಟಿ ನೀಡಿ.',
+        'NOTE: This slip was not transmitted online. Present this reference sheet with original documents at the school office (Mon–Fri, 10:30 AM – 3:30 PM).'
+      ),
+    ];
+    const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ghs-davangere-office-enquiry-slip.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
+
+  const currentChecklist = serviceChecklist[reqType] || serviceChecklist.admission;
 
   return (
-    <div
-      className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="service-modal-title"
-    >
-      <div className="bg-white rounded-lg shadow-2xl max-w-lg w-full border-t-4 border-[#13325e] overflow-hidden my-6">
-        {/* Modal Header */}
-        <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between no-print">
-          <div>
-            <h3 id="service-modal-title" className="text-sm sm:text-base font-bold text-[#13325e]">
-              {t.modal_title}
-            </h3>
-            <span className="text-[11px] text-amber-800 font-semibold">
-              {lang === 'kn' ? 'ಸಕಾಲ ಸೇವಾ ಮಾರ್ಗಸೂಚಿಗಳ ಅಡಿಯಲ್ಲಿ' : 'Under Karnataka Sakala Citizen Charter'}
-            </span>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-slate-400 hover:text-slate-700 p-1 text-xl font-bold cursor-pointer"
-            aria-label="Close dialog"
-          >
-            ✕
-          </button>
-        </div>
-
-        {/* Prototype Warning Banner */}
-        <div className="p-2.5 bg-amber-50 border-b border-amber-200 text-[11px] text-amber-900 flex items-center justify-between px-4 no-print">
-          <span>
-            {lang === 'kn'
-              ? 'ಸೂಚನೆ: ಇದು ಕರಡು ಪ್ರಾಯೋಗಿಕ ಅರ್ಜಿಯಾಗಿದೆ (Evaluation Form). ಮುದ್ರಿತ ರಸೀದಿಯನ್ನು ಕಚೇರಿಗೆ ಸಲ್ಲಿಸಿ.'
-              : 'Notice: This is a prototype application form. Please present the printed receipt at the school office.'}
-          </span>
-          {savedApplications.length > 0 && !submittedApp && (
-            <button
-              onClick={() => setViewHistory(!viewHistory)}
-              className="text-[#13325e] font-bold underline hover:text-amber-800 shrink-0 ml-2 cursor-pointer"
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      titleId="service-modal-title"
+      subtitle={pick(
+        'ಸಕಾಲ ಸೇವಾ ಮಾರ್ಗದರ್ಶಿ · ಆನ್‌ಲೈನ್ ಸಲ್ಲಿಕೆ ಸಕ್ರಿಯವಾಗಿಲ್ಲ',
+        'Office Visit Guide · No Online Submission'
+      )}
+      title={t.modal_title}
+      closeLabel={t.a11y_close_dialog}
+      maxWidth="2xl"
+      printable
+      footer={
+        showSlip ? (
+          <div className="flex flex-wrap items-center justify-end gap-2 w-full">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownloadSlipTxt}
+              leftIcon={<Download className="w-3.5 h-3.5" />}
             >
-              {viewHistory
-                ? lang === 'kn' ? 'ಅರ್ಜಿ ನಮೂನೆಗೆ ಹಿಂತಿರುಗಿ' : 'Back to Form'
-                : lang === 'kn' ? `ಹಿಂದಿನ ಅರ್ಜಿಗಳು (${savedApplications.length})` : `History (${savedApplications.length})`}
-            </button>
-          )}
-        </div>
+              {pick('ಚೀಟಿ ಡೌನ್‌ಲೋಡ್ (.txt)', 'Download Slip (.txt)')}
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => window.print()}
+              leftIcon={<Printer className="w-3.5 h-3.5" />}
+            >
+              {t.receipt_print}
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleReset}
+              leftIcon={<RotateCcw className="w-3.5 h-3.5" />}
+            >
+              {pick('ತಿದ್ದುಪಡಿ ಮಾಡಿ', 'Edit Details')}
+            </Button>
+            <Button variant="ghost" size="sm" onClick={onClose}>
+              {t.close}
+            </Button>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between gap-2 w-full text-xs text-slate-600">
+            <span className="inline-flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-slate-500" aria-hidden="true" />
+              <span>Mon–Fri · 10:30 AM – 3:30 PM</span>
+            </span>
+            <Button variant="secondary" size="sm" onClick={onClose}>
+              {t.close}
+            </Button>
+          </div>
+        )
+      }
+    >
+      <div className="space-y-4 text-xs sm:text-sm">
+        <Alert tone="warning">{t.service_office_alert}</Alert>
 
-        {/* Modal Content */}
-        <div className="p-5 sm:p-6 text-xs sm:text-sm">
-          {viewHistory && !submittedApp ? (
-            /* Previously Submitted Applications History */
-            <div className="space-y-4">
-              <h4 className="font-bold text-sm text-[#13325e]">
-                {lang === 'kn' ? 'ನಿಮ್ಮ ಹಿಂದಿನ ಆನ್‌ಲೈನ್ ಅರ್ಜಿಗಳ ಪಟ್ಟಿ:' : 'Your Submitted Applications:'}
+        {showSlip ? (
+          /* Honest Printable Office Reference Slip — Zero fake status/submission claim */
+          <div className="border-2 border-slate-300 rounded-lg p-5 bg-white text-slate-900 space-y-4">
+            <div className="text-center border-b border-slate-200 pb-3 space-y-1">
+              <h4 className="font-bold text-base text-[#13325e]">
+                {pick(SCHOOL_INFO.nameKn, SCHOOL_INFO.nameEn)}
               </h4>
+              <p className="text-xs text-slate-600">
+                {pick(SCHOOL_INFO.deptKn, SCHOOL_INFO.deptEn)} · UDISE: {SCHOOL_INFO.udise}
+              </p>
+              <p className="text-xs font-bold text-amber-950 bg-amber-50 border border-amber-300 inline-block px-3 py-1 rounded mt-1">
+                {t.service_slip_title}
+              </p>
+            </div>
 
-              <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
-                {savedApplications.map((app, i) => (
-                  <div key={i} className="p-3 bg-slate-50 border border-slate-200 rounded space-y-1">
-                    <div className="flex items-center justify-between">
-                      <strong className="font-mono text-[#13325e]">{app.appNo}</strong>
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded">
-                        {app.status}
-                      </span>
-                    </div>
-                    <div className="text-slate-700 text-xs">
-                      <span>{app.studentName} ({app.grade})</span> · <span className="text-slate-500">{app.appliedDate}</span>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setSubmittedApp(app);
-                        setViewHistory(false);
-                      }}
-                      className="text-[11px] text-blue-700 font-bold hover:underline cursor-pointer"
-                    >
-                      {lang === 'kn' ? 'ರಸೀದಿ ವೀಕ್ಷಿಸಿ / ಮುದ್ರಿಸಿ' : 'View / Print Receipt'}
-                    </button>
-                  </div>
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div>
+                <dt className="text-slate-500">{t.form_type_label}</dt>
+                <dd className="font-bold text-[#13325e]">{reqTypeLabels[reqType]}</dd>
+              </div>
+              <div>
+                <dt className="text-slate-500">{pick('ಸಿದ್ಧಪಡಿಸಿದ ದಿನಾಂಕ:', 'Date Prepared:')}</dt>
+                <dd className="font-mono font-bold text-slate-900">
+                  {new Date().toLocaleDateString('en-IN')}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-slate-500">{t.form_name_label}</dt>
+                <dd className="font-bold text-slate-900">{studentName}</dd>
+              </div>
+              <div>
+                <dt className="text-slate-500">{t.form_father_label}</dt>
+                <dd className="font-bold text-slate-900">{guardianName}</dd>
+              </div>
+              <div>
+                <dt className="text-slate-500">{t.form_grade_label}</dt>
+                <dd className="font-bold text-slate-900">Class {grade}</dd>
+              </div>
+              <div>
+                <dt className="text-slate-500">{t.form_phone_label}</dt>
+                <dd className="font-mono font-bold text-slate-900">{phone}</dd>
+              </div>
+              <div>
+                <dt className="text-slate-500">SATS ID:</dt>
+                <dd className="font-mono font-bold text-slate-900">
+                  {satsNo.trim() || pick('ಲಭ್ಯವಿಲ್ಲ', 'Not provided')}
+                </dd>
+              </div>
+              <div className="sm:col-span-2">
+                <dt className="text-slate-500">{t.form_details_label}</dt>
+                <dd className="font-medium text-slate-800 mt-0.5">{details}</dd>
+              </div>
+            </dl>
+
+            <div className="border-t border-slate-200 pt-3 text-xs text-slate-700 space-y-1">
+              <strong className="text-[#13325e] block">
+                {pick(
+                  'ಶಾಲಾ ಕಚೇರಿಗೆ ತರಬೇಕಾದ ಮೂಲ ದಾಖಲೆಗಳು:',
+                  'Original Documents Required at School Office:'
+                )}
+              </strong>
+              <ul className="list-disc pl-5 space-y-1">
+                {pick(currentChecklist.kn, currentChecklist.en).map((doc, idx) => (
+                  <li key={idx}>{doc}</li>
                 ))}
-              </div>
-
-              <div className="pt-2 flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => setViewHistory(false)}
-                  className="px-3.5 py-1.5 bg-slate-200 text-slate-800 font-semibold rounded text-xs hover:bg-slate-300"
-                >
-                  {lang === 'kn' ? 'ಹೊಸ ಅರ್ಜಿ ಸಲ್ಲಿಸಿ' : 'Submit New Application'}
-                </button>
-              </div>
+              </ul>
             </div>
-          ) : submittedApp ? (
-            /* Acknowledgment Slip */
-            <div className="space-y-4 printable-area">
-              <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded text-emerald-900 text-center no-print">
-                <span className="text-2xl block mb-1">✓</span>
-                <strong className="block text-sm font-bold">{t.app_success_title}</strong>
-                <p className="text-xs text-emerald-800 mt-0.5">{t.app_success_note}</p>
-              </div>
-
-              {/* Printable Official Receipt */}
-              <div className="border-2 border-slate-300 rounded p-4 bg-white text-slate-900 space-y-3">
-                <div className="text-center border-b border-slate-200 pb-2">
-                  <h4 className="font-bold text-sm text-[#13325e]">
-                    {lang === 'kn' ? SCHOOL_INFO.nameKn : SCHOOL_INFO.nameEn}
-                  </h4>
-                  <p className="text-[11px] text-slate-600">
-                    {lang === 'kn' ? SCHOOL_INFO.deptKn : SCHOOL_INFO.deptEn} · UDISE: {SCHOOL_INFO.udise}
-                  </p>
-                  <span className="inline-block px-2.5 py-0.5 bg-amber-100 border border-amber-300 text-amber-950 text-[11px] font-bold rounded mt-1">
-                    {lang === 'kn' ? 'ಅರ್ಜಿ ಸ್ವೀಕೃತಿ ರಸೀದಿ (ಕರಡು ಮಾದರಿ / Prototype Slip)' : 'Application Acknowledgment Receipt (Prototype)'}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div>
-                    <span className="text-slate-500 block">{t.receipt_app_no}</span>
-                    <strong className="font-mono text-sm text-[#13325e]">{submittedApp.appNo}</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block">{t.receipt_date}</span>
-                    <strong className="font-mono text-slate-800">{submittedApp.appliedDate}</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block">{t.form_name_label}</span>
-                    <strong className="text-slate-900">{submittedApp.studentName}</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block">{t.form_grade_label}</span>
-                    <strong className="text-slate-900">{submittedApp.grade}</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block">{t.form_phone_label}</span>
-                    <strong className="font-mono text-slate-900">{submittedApp.mobile}</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-500 block">SATS ID:</span>
-                    <strong className="font-mono text-slate-900">{submittedApp.satsNo}</strong>
-                  </div>
-                </div>
-
-                <div className="border-t border-slate-200 pt-2 text-[11px] text-slate-600">
-                  <p>
-                    <strong>{lang === 'kn' ? 'ಸೂಚನೆ:' : 'Note:'}</strong>{' '}
-                    {lang === 'kn'
-                      ? 'ಮೂಲ ದಾಖಲೆಗಳೊಂದಿಗೆ (ಹಿಂದಿನ ಅಂಕಪಟ್ಟಿ, ಜಾತಿ/ಆದಾಯ ಪ್ರಮಾಣಪತ್ರ) ಶಾಲಾ ಕಚೇರಿಗೆ ಸೋಮವಾರದಿಂದ ಶುಕ್ರವಾರ ಬೆಳಗ್ಗೆ 10:30 ರಿಂದ ಮಧ್ಯಾಹ್ನ 3:30 ರೊಳಗೆ ಭೇಟಿ ನೀಡಿ.'
-                      : 'Kindly visit the school administrative office with original documents on working days between 10:30 AM and 3:30 PM.'}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center justify-end gap-2 pt-2 no-print">
-                <button
-                  type="button"
-                  onClick={handlePrintReceipt}
-                  className="px-4 py-2 bg-[#13325e] text-white font-bold rounded text-xs hover:bg-[#0c1f3c] transition-colors cursor-pointer inline-flex items-center gap-1.5"
-                >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <polyline points="6 9 6 2 18 2 18 9" />
-                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
-                    <rect x="6" y="14" width="12" height="8" />
-                  </svg>
-                  <span>{t.receipt_print}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={handleResetForm}
-                  className="px-3.5 py-2 bg-slate-200 text-slate-800 font-semibold rounded text-xs hover:bg-slate-300 transition-colors cursor-pointer"
-                >
-                  {lang === 'kn' ? 'ಮತ್ತೊಂದು ಅರ್ಜಿ' : 'New Application'}
-                </button>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="px-3.5 py-2 bg-slate-800 text-white font-semibold rounded text-xs hover:bg-slate-900 transition-colors cursor-pointer"
-                >
-                  {t.close}
-                </button>
-              </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {/* Dynamic Document Checklist Preview */}
+            <div className="p-3.5 rounded-md bg-slate-50 border border-slate-200 space-y-2">
+              <h4 className="text-xs font-bold text-[#13325e] flex items-center gap-1.5">
+                <FileCheck2 className="w-4 h-4 text-emerald-700" aria-hidden="true" />
+                <span>
+                  {pick(
+                    'ಆಯ್ಕೆ ಮಾಡಿದ ಸೇವೆಗೆ ಕಚೇರಿಯಲ್ಲಿ ಅಗತ್ಯವಿರುವ ದಾಖಲೆಗಳು:',
+                    'Documents Required at Office for Selected Service:'
+                  )}
+                </span>
+              </h4>
+              <ul className="list-disc pl-5 text-xs text-slate-700 space-y-1">
+                {pick(currentChecklist.kn, currentChecklist.en).map((doc, idx) => (
+                  <li key={idx}>{doc}</li>
+                ))}
+              </ul>
             </div>
-          ) : (
-            /* Application Input Form */
-            <form onSubmit={handleSubmit} className="space-y-3.5">
-              <div>
-                <label className="block font-semibold text-slate-800 mb-1">
-                  {t.form_type_label}
-                </label>
-                <select
-                  value={reqType}
-                  onChange={(e) => setReqType(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#13325e]"
-                  required
-                >
-                  <option value="admission">{t.form_type_opt_admission}</option>
-                  <option value="tc">{t.form_type_opt_tc}</option>
-                  <option value="study_cert">{t.form_type_opt_study}</option>
-                  <option value="scholarship">{t.form_type_opt_scholarship}</option>
-                </select>
-              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-slate-800 mb-1">
-                    {t.form_name_label}
-                  </label>
-                  <input
-                    type="text"
-                    value={studentName}
-                    onChange={(e) => setStudentName(e.target.value)}
-                    placeholder={lang === 'kn' ? 'ಉದಾ: ಪ್ರದೀಪ್ ಕುಮಾರ್ ಎನ್.' : 'e.g., Pradeep Kumar N.'}
-                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#13325e]"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-slate-800 mb-1">
-                    {t.form_father_label}
-                  </label>
-                  <input
-                    type="text"
-                    value={fatherName}
-                    onChange={(e) => setFatherName(e.target.value)}
-                    placeholder={lang === 'kn' ? 'ಉದಾ: ನಾಗರಾಜ್ ಕೆ.' : 'e.g., Nagaraj K.'}
-                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#13325e]"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-slate-800 mb-1">
-                    {t.form_grade_label}
-                  </label>
+            <form onSubmit={handlePrepareSlip} noValidate className="space-y-3">
+              <FormField id="srv-type" label={t.form_type_label} required>
+                {(props) => (
                   <select
-                    value={grade}
-                    onChange={(e) => setGrade(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#13325e]"
-                    required
+                    {...props}
+                    value={reqType}
+                    onChange={(e) => setReqType(e.target.value)}
+                    className={INPUT_BASE_CLASS}
                   >
-                    <option value="8">8ನೇ ತರಗತಿ (Class 8)</option>
-                    <option value="9">9ನೇ ತರಗತಿ (Class 9)</option>
-                    <option value="10">10ನೇ ತರಗತಿ (Class 10 - SSLC)</option>
+                    <option value="admission">{t.form_type_opt_admission}</option>
+                    <option value="tc">{t.form_type_opt_tc}</option>
+                    <option value="study_cert">{t.form_type_opt_study}</option>
+                    <option value="scholarship">{t.form_type_opt_scholarship}</option>
                   </select>
-                </div>
+                )}
+              </FormField>
 
-                <div>
-                  <label className="block font-semibold text-slate-800 mb-1">
-                    {t.form_phone_label}
-                  </label>
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="9876543210"
-                    pattern="[0-9]{10}"
-                    maxLength={10}
-                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#13325e]"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-800 mb-1">
-                  {t.form_sats_label}
-                </label>
-                <input
-                  type="text"
-                  value={satsNo}
-                  onChange={(e) => setSatsNo(e.target.value)}
-                  placeholder="9-digit SATS ID (optional)"
-                  maxLength={9}
-                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#13325e]"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-800 mb-1">
-                  {t.form_details_label}
-                </label>
-                <textarea
-                  value={details}
-                  onChange={(e) => setDetails(e.target.value)}
-                  rows={2}
-                  placeholder={
-                    lang === 'kn'
-                      ? 'ನಿಮ್ಮ ಕೋರಿಕೆಯ ಸಂಕ್ಷಿಪ್ತ ವಿವರ (ಉದಾ: ಕನ್ನಡ ಮಾಧ್ಯಮಕ್ಕೆ ಹೊಸ ಪ್ರವೇಶ ಅಥವಾ ಟಿ.ಸಿ ವರ್ಗಾವಣೆ)...'
-                      : 'Brief details about your request (e.g., Transfer to high school, scholarship assistance)...'
-                  }
-                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#13325e]"
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <FormField
+                  id="srv-student-name"
+                  label={t.form_name_label}
                   required
-                />
+                  error={errors.studentName}
+                >
+                  {(props) => (
+                    <input
+                      {...props}
+                      type="text"
+                      value={studentName}
+                      onChange={(e) => setStudentName(e.target.value)}
+                      placeholder={lang === 'kn' ? 'ಉದಾ: ವಿದ್ಯಾರ್ಥಿಯ ಹೆಸರು' : 'Student full name'}
+                      className={INPUT_BASE_CLASS}
+                    />
+                  )}
+                </FormField>
+
+                <FormField
+                  id="srv-guardian-name"
+                  label={t.form_father_label}
+                  required
+                  error={errors.guardianName}
+                >
+                  {(props) => (
+                    <input
+                      {...props}
+                      type="text"
+                      value={guardianName}
+                      onChange={(e) => setGuardianName(e.target.value)}
+                      placeholder={lang === 'kn' ? 'ತಂದೆ / ತಾಯಿ ಹೆಸರು' : 'Parent / Guardian name'}
+                      className={INPUT_BASE_CLASS}
+                    />
+                  )}
+                </FormField>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="px-3.5 py-2 bg-slate-200 text-slate-800 font-semibold rounded text-xs hover:bg-slate-300 transition-colors cursor-pointer"
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <FormField id="srv-grade" label={t.form_grade_label} required>
+                  {(props) => (
+                    <select
+                      {...props}
+                      value={grade}
+                      onChange={(e) => setGrade(e.target.value)}
+                      className={INPUT_BASE_CLASS}
+                    >
+                      <option value="8">Class 8</option>
+                      <option value="9">Class 9</option>
+                      <option value="10">Class 10 (SSLC)</option>
+                    </select>
+                  )}
+                </FormField>
+
+                <FormField
+                  id="srv-phone"
+                  label={t.form_phone_label}
+                  required
+                  error={errors.phone}
                 >
-                  {t.btn_cancel}
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-[#13325e] text-white font-bold rounded text-xs hover:bg-[#0c1f3c] transition-colors cursor-pointer"
-                >
-                  {t.btn_submit_app}
-                </button>
+                  {(props) => (
+                    <input
+                      {...props}
+                      type="tel"
+                      maxLength={10}
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="10-digit mobile"
+                      className={`${INPUT_BASE_CLASS} font-mono`}
+                    />
+                  )}
+                </FormField>
+
+                <FormField id="srv-sats" label={t.form_sats_label}>
+                  {(props) => (
+                    <input
+                      {...props}
+                      type="text"
+                      maxLength={12}
+                      value={satsNo}
+                      onChange={(e) => setSatsNo(e.target.value)}
+                      placeholder="Optional SATS ID"
+                      className={`${INPUT_BASE_CLASS} font-mono`}
+                    />
+                  )}
+                </FormField>
+              </div>
+
+              <FormField
+                id="srv-details"
+                label={t.form_details_label}
+                required
+                error={errors.details}
+              >
+                {(props) => (
+                  <textarea
+                    {...props}
+                    rows={2}
+                    value={details}
+                    onChange={(e) => setDetails(e.target.value)}
+                    placeholder={pick(
+                      'ನಿಮ್ಮ ಕಚೇರಿ ವಿಚಾರಣೆಯ ಸಂಕ್ಷಿಪ್ತ ವಿವರ...',
+                      'Brief summary for the school office desk...'
+                    )}
+                    className={INPUT_BASE_CLASS}
+                  />
+                )}
+              </FormField>
+
+              <div className="pt-2 flex justify-end gap-2">
+                <Button type="submit" variant="primary" size="md" leftIcon={<Printer className="w-4 h-4" />}>
+                  {t.service_btn_generate_slip}
+                </Button>
               </div>
             </form>
-          )}
-        </div>
+          </div>
+        )}
       </div>
-    </div>
+    </Modal>
   );
 };
