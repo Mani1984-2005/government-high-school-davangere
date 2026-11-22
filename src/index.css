@@ -1,30 +1,109 @@
 @import "tailwindcss";
 
+@theme {
+  --color-gov-navy: #13325e;
+  --color-gov-navy-dark: #091a32;
+  --color-gov-navy-deep: #0b1f3c;
+  --color-gov-navy-hover: #1a437d;
+  --color-gov-saffron: #d97706;
+  --color-gov-amber: #f59e0b;
+  --color-gov-green: #14532d;
+  --color-gov-red: #b91c1c;
+
+  --font-sans: "Noto Sans Kannada", "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-serif-kn: "Tiro Kannada", "Noto Sans Kannada", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
 @layer base {
   :root {
     --font-scale: 1rem;
     --primary-gov: #13325e;
     --primary-dark: #091a32;
-    --gov-green: #155724;
-    --karnataka-yellow: #f8c01c;
-    --karnataka-red: #d32f2f;
-    --saffron: #d9531e;
+    --gov-green: #14532d;
+    --karnataka-yellow: #f59e0b;
+    --karnataka-red: #b91c1c;
+    --saffron: #d97706;
+    --surface-page: #f8fafc;
+    --surface-card: #ffffff;
+    --surface-muted: #f1f5f9;
+    --border-hairline: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
   }
 
   html {
     font-size: var(--font-scale);
     scroll-behavior: smooth;
-    font-family: 'Noto Sans Kannada', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    font-family: var(--font-sans);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* High Contrast Accessibility Mode (WCAG AAA Compliance) */
-  html[data-theme="contrast"] {
-    filter: contrast(120%);
+  /* Ensure proper vertical breathing room for Kannada vowel signs & ottaksharas */
+  html[lang="kn"] body {
+    line-height: 1.65;
   }
-  
+
+  html[lang="en"] body {
+    line-height: 1.6;
+  }
+
+  body {
+    background-color: var(--surface-page);
+    color: var(--text-primary);
+  }
+
+  h1, h2, h3, h4 {
+    text-wrap: balance;
+  }
+
+  /* High-visibility keyboard focus indicator (WCAG 2.1 AA) */
+  :focus-visible {
+    outline: 3px solid #f59e0b;
+    outline-offset: 2px;
+  }
+
+  /* Respect user reduced motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* High Contrast Accessibility Mode (WCAG AAA) — no filter on <html> so fixed/sticky works */
+  html[data-theme="contrast"] {
+    --surface-page: #000000;
+    --surface-card: #0a0a0a;
+    --surface-muted: #141414;
+    --border-hairline: #fde047;
+    --text-primary: #fde047;
+    --text-secondary: #fef08a;
+  }
+
   html[data-theme="contrast"] body {
     background-color: #000000 !important;
-    color: #ffff00 !important;
+    color: #fde047 !important;
+  }
+
+  html[data-theme="contrast"] section,
+  html[data-theme="contrast"] header,
+  html[data-theme="contrast"] footer,
+  html[data-theme="contrast"] aside,
+  html[data-theme="contrast"] article,
+  html[data-theme="contrast"] table,
+  html[data-theme="contrast"] thead,
+  html[data-theme="contrast"] tbody,
+  html[data-theme="contrast"] tr {
+    background-color: #050505 !important;
+    color: #fde047 !important;
+    border-color: #fde047 !important;
   }
 
   html[data-theme="contrast"] .bg-white,
@@ -33,10 +112,11 @@
   html[data-theme="contrast"] .bg-blue-50,
   html[data-theme="contrast"] .bg-amber-50,
   html[data-theme="contrast"] .bg-emerald-50,
+  html[data-theme="contrast"] .bg-red-50,
   html[data-theme="contrast"] .bg-stone-50 {
-    background-color: #0d0d0d !important;
-    color: #ffff00 !important;
-    border-color: #ffff00 !important;
+    background-color: #0a0a0a !important;
+    color: #fde047 !important;
+    border-color: #fde047 !important;
   }
 
   html[data-theme="contrast"] p,
@@ -45,8 +125,9 @@
   html[data-theme="contrast"] td,
   html[data-theme="contrast"] th,
   html[data-theme="contrast"] label,
-  html[data-theme="contrast"] li {
-    color: #ffff00 !important;
+  html[data-theme="contrast"] li,
+  html[data-theme="contrast"] a {
+    color: #fde047 !important;
   }
 
   html[data-theme="contrast"] h1,
@@ -57,46 +138,45 @@
     color: #ffffff !important;
   }
 
-  html[data-theme="contrast"] .border-slate-200,
-  html[data-theme="contrast"] .border-slate-300,
-  html[data-theme="contrast"] .border-blue-200,
-  html[data-theme="contrast"] .border-amber-200,
-  html[data-theme="contrast"] .border-amber-300 {
-    border-color: #ffff00 !important;
-  }
-
   html[data-theme="contrast"] input,
   html[data-theme="contrast"] select,
   html[data-theme="contrast"] textarea {
     background-color: #000000 !important;
-    color: #ffff00 !important;
-    border-color: #ffff00 !important;
+    color: #ffffff !important;
+    border-color: #fde047 !important;
   }
 
-  html[data-theme="contrast"] a,
   html[data-theme="contrast"] button {
-    outline-color: #ffff00 !important;
+    border-color: #fde047 !important;
   }
 }
 
-/* Custom Print styles for Official Circulars, Application Slips & Report Cards */
+/* Custom Print styles for Official Circulars & Printable Notices */
 @media print {
   header, nav, footer, .ticker-band, .no-print, button, form {
     display: none !important;
   }
-  
+
   body {
     background: #ffffff !important;
     color: #000000 !important;
     font-size: 11pt;
   }
 
+  /* When a modal/document is marked for isolated printing, hide sibling page chrome */
+  body.printing-document main > section:not(.has-printable-active),
+  body.printing-document .printable-hidden-on-doc {
+    display: none !important;
+  }
+
   .printable-area {
     display: block !important;
     width: 100% !important;
+    max-width: 100% !important;
     margin: 0 !important;
     padding: 16px !important;
     border: 1px solid #999999 !important;
+    box-shadow: none !important;
     background: #ffffff !important;
     color: #000000 !important;
   }

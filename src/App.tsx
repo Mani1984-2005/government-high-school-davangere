@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Language } from './types';
+import { AppProvider, useApp } from './context/AppContext';
 import { GovHeader } from './components/GovHeader';
 import { Navbar } from './components/Navbar';
 import { LiveTicker } from './components/LiveTicker';
 import { HeroSection } from './components/HeroSection';
+import { AboutSection } from './components/AboutSection';
 import { NoticesSection } from './components/NoticesSection';
+import { FAQSection } from './components/FAQSection';
 import { MidDayMealSection } from './components/MidDayMealSection';
 import { WelfareSchemesSection } from './components/WelfareSchemesSection';
 import { AcademicsSection } from './components/AcademicsSection';
@@ -17,28 +19,10 @@ import { Footer } from './components/Footer';
 import { OnlineServicesModal } from './components/OnlineServicesModal';
 import { AdminVerificationModal } from './components/AdminVerificationModal';
 
-export default function App() {
-  const [lang, setLang] = useState<Language>('kn');
-  const [contrast, setContrast] = useState<boolean>(false);
-  const [fontScale, setFontScale] = useState<number>(1);
+const PortalShell: React.FC = () => {
+  const { lang } = useApp();
   const [isServiceModalOpen, setIsServiceModalOpen] = useState<boolean>(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState<boolean>(false);
-
-  const handleOpenServiceModal = () => {
-    setIsServiceModalOpen(true);
-  };
-
-  const handleCloseServiceModal = () => {
-    setIsServiceModalOpen(false);
-  };
-
-  const handleOpenAdminModal = () => {
-    setIsAdminModalOpen(true);
-  };
-
-  const handleCloseAdminModal = () => {
-    setIsAdminModalOpen(false);
-  };
 
   const scrollToNotices = () => {
     const el = document.getElementById('notices');
@@ -48,74 +32,49 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-100 text-slate-900 selection:bg-amber-300 selection:text-slate-950">
-      {/* Official Government Accessibility Top Ribbon & Header */}
-      <GovHeader
-        lang={lang}
-        setLang={setLang}
-        contrast={contrast}
-        setContrast={setContrast}
-        fontScale={fontScale}
-        setFontScale={setFontScale}
-        onOpenServiceModal={handleOpenServiceModal}
-        onOpenAdminModal={handleOpenAdminModal}
-      />
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-amber-300 selection:text-slate-950">
+      <GovHeader onOpenAdminModal={() => setIsAdminModalOpen(true)} />
 
-      {/* Main Navigation Bar */}
-      <Navbar lang={lang} onOpenServiceModal={handleOpenServiceModal} />
+      <Navbar onOpenServiceModal={() => setIsServiceModalOpen(true)} />
 
-      {/* Live Notice / Circular Ticker */}
-      <LiveTicker lang={lang} onNoticeClick={scrollToNotices} />
+      <LiveTicker onNoticeClick={scrollToNotices} />
 
-      {/* Main Content Area */}
-      <main id="main-content" className="flex-1 focus:outline-none">
-        {/* Hero Section */}
-        <HeroSection lang={lang} onOpenServiceModal={handleOpenServiceModal} />
-
-        {/* Notices & Circulars with Headmaster Message */}
+      <main id="main-content" tabIndex={-1} className="flex-1 focus:outline-none">
+        <HeroSection lang={lang} onOpenServiceModal={() => setIsServiceModalOpen(true)} />
+        <AboutSection />
         <NoticesSection lang={lang} />
-
-        {/* Akshara Dasoha (Mid-Day Meal) & Ksheera Bhagya */}
+        <FAQSection />
         <MidDayMealSection lang={lang} />
-
-        {/* Government Welfare Schemes & Entitlements */}
         <WelfareSchemesSection lang={lang} />
-
-        {/* Academics, Daily Bell Schedule & SSLC Desk */}
         <AcademicsSection lang={lang} />
-
-        {/* Secure Student Progress & Attendance Tracker (SATS) */}
         <StudentProgressTracker lang={lang} />
-
-        {/* SDMC (School Development & Monitoring Committee) & Transparency */}
         <SdmcSection lang={lang} />
-
-        {/* Faculty & Staff Directory */}
         <FacultySection lang={lang} />
-
-        {/* Campus Photo Gallery */}
         <GallerySection lang={lang} />
-
-        {/* Address, Location Guidance, Helplines & Grievance Box */}
         <ContactSection lang={lang} />
       </main>
 
-      {/* Official Footer */}
-      <Footer lang={lang} onOpenAdminModal={handleOpenAdminModal} />
+      <Footer lang={lang} onOpenAdminModal={() => setIsAdminModalOpen(true)} />
 
-      {/* Online Service / Admissions / TC Modal */}
       <OnlineServicesModal
         lang={lang}
         isOpen={isServiceModalOpen}
-        onClose={handleCloseServiceModal}
+        onClose={() => setIsServiceModalOpen(false)}
       />
 
-      {/* School Pre-Deployment Verification Checklist Modal */}
       <AdminVerificationModal
         lang={lang}
         isOpen={isAdminModalOpen}
-        onClose={handleCloseAdminModal}
+        onClose={() => setIsAdminModalOpen(false)}
       />
     </div>
+  );
+};
+
+export default function App() {
+  return (
+    <AppProvider>
+      <PortalShell />
+    </AppProvider>
   );
 }

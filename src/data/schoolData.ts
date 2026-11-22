@@ -6,7 +6,10 @@ import {
   SdmcMember,
   FacultyMember,
   GalleryPhoto,
+  FaqItem,
+  SchoolFacility,
 } from '../types';
+import { SCHOOL_MEDIA } from '../assets/media';
 
 export const SCHOOL_INFO = {
   nameKn: 'ಸರ್ಕಾರಿ ಪ್ರೌಢಶಾಲೆ, ದಾವಣಗೆರೆ',
@@ -324,7 +327,7 @@ export const GALLERY_PHOTOS: GalleryPhoto[] = [
     titleKn: 'ಐತಿಹಾಸಿಕ ಶಾಲಾ ಕಟ್ಟಡ & ಸುಂದರ ಹಸಿರು ಆವರಣ',
     titleEn: 'Historic School Building & Green Campus Courtyard',
     category: 'campus',
-    image: '/src/assets/images/hero_school_campus_1792079077456.jpg',
+    image: SCHOOL_MEDIA.campus,
     captionKn: 'ದಾವಣಗೆರೆ ವಿದ್ಯಾನಗರದ ಪ್ರಶಾಂತ ಪರಿಸರದಲ್ಲಿ ತಲೆಯೆತ್ತಿರುವ ಸರ್ಕಾರಿ ಪ್ರೌಢಶಾಲೆಯ ಭವ್ಯ ಮುಂಭಾಗ ಮತ್ತು ರಾಷ್ಟ್ರಧ್ವಜ ಸ್ತಂಭ.',
     captionEn: 'Main entrance and manicured green courtyard with national flag mast at GHS Davangere.',
   },
@@ -333,7 +336,7 @@ export const GALLERY_PHOTOS: GalleryPhoto[] = [
     titleKn: 'ಅಕ್ಷರ ದಾಸೋಹ: ಪೌಷ್ಟಿಕ ಬಿಸಿಯೂಟ ವಿತರಣೆ',
     titleEn: 'Akshara Dasoha: Hot Nutritious Mid-Day Meal',
     category: 'academics',
-    image: '/src/assets/images/akshara_dasoha_meal_1792079078376.jpg',
+    image: SCHOOL_MEDIA.midDayMeal,
     captionKn: 'ಶುಚಿ-ರುಚಿಯಾದ ಅನ್ನ ಸಾಂಬಾರ್, ಕ್ಷೀರಭಾಗ್ಯ ಬಿಸಿ ಹಾಲು ಮತ್ತು ತಾಜಾ ಬಾಳೆಹಣ್ಣು ಸವಿಯುತ್ತಿರುವ ನಮ್ಮ ವಿದ್ಯಾರ್ಥಿಗಳು.',
     captionEn: 'Students enjoying nutritious freshly cooked mid-day meal served in stainless steel partitioned thalis.',
   },
@@ -342,7 +345,7 @@ export const GALLERY_PHOTOS: GalleryPhoto[] = [
     titleKn: 'ಸುಸಜ್ಜಿತ ವಿಜ್ಞಾನ ಪ್ರಯೋಗಾಲಯದಲ್ಲಿ ಪ್ರಾಯೋಗಿಕ ಕಲಿಕೆ',
     titleEn: 'Hands-on Experiments in Well-Equipped Science Lab',
     category: 'academics',
-    image: '/src/assets/images/school_science_lab_1792079078684.jpg',
+    image: SCHOOL_MEDIA.scienceLab,
     captionKn: 'ಸೂಕ್ಷ್ಮದರ್ಶಕ ಮತ್ತು ಆಪ್ಟಿಕಲ್ ಪ್ರಿಸಂ ಮೂಲಕ ಭೌತಶಾಸ್ತ್ರ ಹಾಗೂ ಜೀವಶಾಸ್ತ್ರದ ಪ್ರಾಯೋಗಿಕ ತರಬೇತಿಯಲ್ಲಿ ನಿರತರಾದ ವಿದ್ಯಾರ್ಥಿಗಳು.',
     captionEn: 'Secondary students conducting optics prism and microscope experiments in the physics & biology lab.',
   },
@@ -351,7 +354,7 @@ export const GALLERY_PHOTOS: GalleryPhoto[] = [
     titleKn: 'ವಾರ್ಷಿಕ ಕ್ರೀಡಾಕೂಟ ಮತ್ತು ಕನ್ನಡ ರಾಜ್ಯೋತ್ಸವ ಸಂಭ್ರಮ',
     titleEn: 'Annual Athletic Meet & Karnataka Rajyotsava Celebrations',
     category: 'sports',
-    image: '/src/assets/images/cultural_sports_meet_1792079080265.jpg',
+    image: SCHOOL_MEDIA.culturalSports,
     captionKn: 'ಶಾಲಾ ಕ್ರೀಡಾಂಗಣದಲ್ಲಿ 100 ಮೀಟರ್ ಓಟದ ಸ್ಪರ್ಧೆ ಹಾಗೂ ಕರ್ನಾಟಕದ ಕೆಂಪು-ಹಳದಿ ಧ್ವಜ ಹಿಡಿದು ಸಂಭ್ರಮಿಸಿದ ವಿದ್ಯಾರ್ಥಿಗಳು.',
     captionEn: 'Track and field sprint tournament with festive Karnataka flags during annual athletic championship.',
   },
@@ -524,4 +527,136 @@ export const SCHOOL_VERIFICATION_CHECKLIST: SchoolVerificationFact[] = [
     requiredDocumentEn: 'District Education Department POCSO committee gazette notification',
   },
 ];
+
+export const FAQ_ITEMS: FaqItem[] = [
+  {
+    id: 'faq-01',
+    category: 'admissions',
+    questionKn: 'ಶಾಲೆಯಲ್ಲಿ ಯಾವ ತರಗತಿಗಳು ಮತ್ತು ಮಾಧ್ಯಮಗಳು ಲಭ್ಯವಿವೆ?',
+    questionEn: 'Which grades and mediums of instruction are available at the school?',
+    answerKn:
+      'ಸರ್ಕಾರಿ ಪ್ರೌಢಶಾಲೆ, ದಾವಣಗೆರೆಯಲ್ಲಿ 8, 9 ಮತ್ತು 10ನೇ ತರಗತಿಗಳು (KSEAB SSLC ಪಠ್ಯಕ್ರಮ) ಕನ್ನಡ ಮತ್ತು ಇಂಗ್ಲಿಷ್ ಎರಡೂ ಮಾಧ್ಯಮಗಳಲ್ಲಿ ಲಭ್ಯವಿವೆ.',
+    answerEn:
+      'Government High School, Davangere offers Grades 8, 9, and 10 following the KSEAB (SSLC) curriculum in both Kannada and English mediums.',
+  },
+  {
+    id: 'faq-02',
+    category: 'admissions',
+    questionKn: 'ಹೊಸ ದಾಖಲಾತಿಗಾಗಿ ಪೋಷಕರು ಶಾಲಾ ಕಚೇರಿಯನ್ನು ಯಾವ ಸಮಯದಲ್ಲಿ ಸಂಪರ್ಕಿಸಬೇಕು?',
+    questionEn: 'When should parents visit the school office for admission enquiries?',
+    answerKn:
+      'ಪೋಷಕರು ಸೋಮವಾರದಿಂದ ಶುಕ್ರವಾರದವರೆಗೆ ಬೆಳಗ್ಗೆ 10:30 ರಿಂದ ಮಧ್ಯಾಹ್ನ 3:30 ರೊಳಗೆ ಶಾಲಾ ಕಚೇರಿಗೆ (ವಿದ್ಯಾನಗರ ಮುಖ್ಯ ರಸ್ತೆ, ದಾವಣಗೆರೆ - 577004) ಭೇಟಿ ನೀಡಬಹುದು ಅಥವಾ 08192-224410 ಗೆ ಕರೆ ಮಾಡಬಹುದು. ಮುಖ್ಯ ಶಿಕ್ಷಕರ ಭೇಟಿ ಸಮಯ ಮಧ್ಯಾಹ್ನ 3:30 ರಿಂದ 4:30.',
+    answerEn:
+      'Parents may visit the school office (Vidyanagar Main Road, Davangere - 577004) on working days (Monday to Friday) between 10:30 AM and 3:30 PM, or call 08192-224410. Headmaster parent consultation hours are Monday to Friday, 3:30 PM to 4:30 PM.',
+  },
+  {
+    id: 'faq-03',
+    category: 'admissions',
+    questionKn: 'ದಾಖಲಾತಿ ವೇಳೆ ಯಾವ ಮೂಲ ದಾಖಲೆಗಳನ್ನು ತರಬೇಕಾಗುತ್ತದೆ?',
+    questionEn: 'What documents are needed when visiting the office for admission or transfer?',
+    answerKn:
+      'ಹಿಂದಿನ ತರಗತಿಯ ಅಂಕಪಟ್ಟಿ, ವರ್ಗಾವಣೆ ಪ್ರಮಾಣಪತ್ರ (TC) ಅಥವಾ SATS ದಾಖಲೆ ವಿವರಗಳು ಹಾಗೂ ಅನ್ವಯವಾಗುವ ಜಾತಿ/ಆದಾಯ ಪ್ರಮಾಣಪತ್ರಗಳೊಂದಿಗೆ ಶಾಲಾ ಕಚೇರಿಗೆ ಭೇಟಿ ನೀಡಬೇಕು.',
+    answerEn:
+      'Applicants are advised to bring previous class marks card, Transfer Certificate (TC) or SATS enrollment details, and applicable caste/income certificates to the school administrative office.',
+  },
+  {
+    id: 'faq-04',
+    category: 'academics',
+    questionKn: 'ಶಾಲೆಯ ದೈನಂದಿನ ಸಮಯ ಮತ್ತು ಶನಿವಾರದ ವೇಳಾಪಟ್ಟಿ ಏನು?',
+    questionEn: 'What are the daily school timings and Saturday schedule?',
+    answerKn:
+      'ಶಾಲೆಯ ದೈನಂದಿನ ಅವಧಿ ಬೆಳಗ್ಗೆ 9:45 ರಿಂದ ಸಂಜೆ 4:30 ರವರೆಗೆ (ಬೆಳಗಿನ ಪ್ರಾರ್ಥನೆ, 7 ಬೋಧನಾ/ಚಟುವಟಿಕೆ ಅವಧಿಗಳು ಹಾಗೂ ಮಧ್ಯಾಹ್ನ 1:25 ರಿಂದ 2:05 ರವರೆಗೆ ಬಿಸಿಯೂಟ ವಿರಾಮ). ಶನಿವಾರ ಅರ್ಧ ದಿನದ ಶಾಲೆಯಾಗಿದ್ದು ಮಧ್ಯಾಹ್ನ 12:30 ಕ್ಕೆ ಬಿಸಿಯೂಟದ ನಂತರ ವಿರಾಮ ಇರುತ್ತದೆ. ಭಾನುವಾರ ಸಾಪ್ತಾಹಿಕ ರಜೆ.',
+    answerEn:
+      'Regular school hours are 9:45 AM to 4:30 PM, including morning assembly, 7 periods, and the 1:25 PM – 2:05 PM Akshara Dasoha lunch break. Saturday is a half day with meal service at 12:30 PM; Sunday is the weekly holiday.',
+  },
+  {
+    id: 'faq-05',
+    category: 'academics',
+    questionKn: 'ಪರೀಕ್ಷೆಗೆ ಹಾಜರಾಗಲು ಕನಿಷ್ಠ ಹಾಜರಾತಿ ನಿಯಮವೇನು?',
+    questionEn: 'What is the minimum attendance requirement for examinations?',
+    answerKn:
+      'KSEAB ಮಂಡಳಿಯ ನಿಯಮಾವಳಿಯಂತೆ ವಾರ್ಷಿಕ ಪರೀಕ್ಷೆಗೆ ಹಾಜರಾಗಲು ಕನಿಷ್ಠ ಶೇ. 75 ರಷ್ಟು ಹಾಜರಾತಿ ಕಡ್ಡಾಯವಾಗಿದೆ. 10ನೇ ತರಗತಿ ಪೂರ್ವಸಿದ್ಧತಾ ಪರೀಕ್ಷಾ ಮಾರ್ಗಸೂಚಿಗಳಂತೆ ಶೇ. 85 ಹಾಜರಾತಿ ಕಾಯ್ದುಕೊಳ್ಳಲು ಸೂಚಿಸಲಾಗಿದೆ.',
+    answerEn:
+      'As per KSEAB rules, a minimum of 75% attendance is mandatory to appear for annual examinations. Students in Class 10 are also advised per preparatory circular guidelines to maintain 85% attendance.',
+  },
+  {
+    id: 'faq-06',
+    category: 'welfare',
+    questionKn: 'ಸರ್ಕಾರದಿಂದ ಉಚಿತ ಪಠ್ಯಪುಸ್ತಕ, ಸಮವಸ್ತ್ರ ಮತ್ತು ಬಿಸಿಯೂಟ ದೊರೆಯುತ್ತದೆಯೇ?',
+    questionEn: 'Are textbooks, uniforms, and Mid-Day Meals provided free of cost?',
+    answerKn:
+      'ಹೌದು. ಕರ್ನಾಟಕ ಸರ್ಕಾರದ ಯೋಜನೆಗಳಡಿ KTBS ಪಠ್ಯಪುಸ್ತಕಗಳು, 2 ಜೊತೆ ಸಮವಸ್ತ್ರ, ಶೂ-ಸಾಕ್ಸ್, ಅಕ್ಷರ ದಾಸೋಹ ಬಿಸಿಯೂಟ, ವಾರದಲ್ಲಿ 3 ದಿನ ಕ್ಷೀರಭಾಗ್ಯ ಹಾಲು ಹಾಗೂ 2 ದಿನ ಮೊಟ್ಟೆ (ಅಥವಾ ಬಾಳೆಹಣ್ಣು ಮತ್ತು ಶೇಂಗಾ ಚಿಕ್ಕಿ) ಎಲ್ಲಾ ವಿದ್ಯಾರ್ಥಿಗಳಿಗೆ ಉಚಿತವಾಗಿ ವಿತರಿಸಲಾಗುತ್ತದೆ.',
+    answerEn:
+      'Yes. Under Government of Karnataka schemes, KTBS textbooks, 2 sets of uniforms, shoes and socks, daily Akshara Dasoha mid-day meals, Ksheera Bhagya milk (3 days/week), and boiled eggs or bananas/peanut chikki (2 days/week) are provided 100% free.',
+  },
+  {
+    id: 'faq-07',
+    category: 'welfare',
+    questionKn: 'ವಿದ್ಯಾರ್ಥಿವೇತನ (SSP / NMMS / ರೈತ ವಿದ್ಯಾನಿಧಿ) ಅರ್ಜಿಗೆ ಶಾಲೆಯಲ್ಲಿ ನೆರವು ಸಿಗುತ್ತದೆಯೇ?',
+    questionEn: 'Does the school assist students with SSP and NMMS scholarship applications?',
+    answerKn:
+      'ಹೌದು. ಶಾಲಾ ಕಂಪ್ಯೂಟರ್ ಲ್ಯಾಬ್‌ನಲ್ಲಿ ಪ್ರತಿ ಕೆಲಸದ ದಿನ ಮಧ್ಯಾಹ್ನ 3:30 ರಿಂದ 4:30 ರವರೆಗೆ SSP ಮೆಟ್ರಿಕ್ ಪೂರ್ವ ವಿದ್ಯಾರ್ಥಿವೇತನ ಇ-ದೃಢೀಕರಣಕ್ಕೆ ಉಚಿತ ಮಾರ್ಗದರ್ಶನ ನೀಡಲಾಗುತ್ತದೆ ಹಾಗೂ 8ನೇ ತರಗತಿ ವಿದ್ಯಾರ್ಥಿಗಳಿಗೆ NMMS ಪರೀಕ್ಷೆಗೆ ವಿಶೇಷ ತರಬೇತಿ ಲಭ್ಯವಿದೆ.',
+    answerEn:
+      'Yes. Free SSP Pre-Matric e-attestation guidance is provided at the school computer lab on working days from 3:30 PM to 4:30 PM, alongside dedicated coaching for Class 8 NMMS scholarship aspirants.',
+  },
+  {
+    id: 'faq-08',
+    category: 'certificates',
+    questionKn: 'ವರ್ಗಾವಣೆ ಪ್ರಮಾಣಪತ್ರ (TC) ಅಥವಾ ವ್ಯಾಸಂಗ ಪ್ರಮಾಣಪತ್ರ ಪಡೆಯುವ ವಿಧಾನವೇನು?',
+    questionEn: 'How can parents request a Transfer Certificate (TC) or Study Certificate?',
+    answerKn:
+      'TC ಅಥವಾ ವ್ಯಾಸಂಗ ಪ್ರಮಾಣಪತ್ರಕ್ಕಾಗಿ ಪೋಷಕರು ವಿದ್ಯಾರ್ಥಿಯ SATS ವಿವರಗಳು ಮತ್ತು ಅಗತ್ಯ ದಾಖಲೆಗಳೊಂದಿಗೆ ಶಾಲಾ ಕಚೇರಿಯಲ್ಲಿ ಸಕಾಲ ಸೇವಾ ನಿಯಮಾವಳಿಯಡಿ ನೇರವಾಗಿ ಅರ್ಜಿ ಸಲ್ಲಿಸಬಹುದು. ಆನ್‌ಲೈನ್ ಅರ್ಜಿ ನಮೂನೆ ಕರಡು ರಸೀದಿಯನ್ನು ಸಹ ಕಚೇರಿಗೆ ಸಲ್ಲಿಸಿ ಮಾಹಿತಿ ಪಡೆಯಬಹುದು.',
+    answerEn:
+      'Parents may apply directly at the school office under Karnataka Sakala guidelines with the student’s SATS details and supporting records. You may also prepare a reference slip from the portal service form to present at the office.',
+  },
+];
+
+export const SCHOOL_FACILITIES: SchoolFacility[] = [
+  {
+    id: 'fac-lab',
+    titleKn: 'ವಿಜ್ಞಾನ ಮತ್ತು ಗಣಿತ ಪ್ರಯೋಗಾಲಯ',
+    titleEn: 'Science & Mathematics Laboratory',
+    descKn:
+      'ಭೌತಶಾಸ್ತ್ರ, ರಸಾಯನಶಾಸ್ತ್ರ ಮತ್ತು ಜೀವಶಾಸ್ತ್ರದ ಪ್ರಾಯೋಗಿಕ ಕಲಿಕೆಗಾಗಿ ಸೂಕ್ಷ್ಮದರ್ಶಕಗಳು, ಆಪ್ಟಿಕಲ್ ಪ್ರಿಸಂ ಹಾಗೂ DSERT ಮಾನ್ಯತೆ ಪಡೆದ ಪ್ರಯೋಗ ಉಪಕರಣಗಳು.',
+    descEn:
+      'Equipped with microscopes, optical prisms, and DSERT-aligned apparatus for hands-on Physics, Chemistry, and Biology practicals.',
+    metricKn: 'DSERT ಮಾನ್ಯತೆ',
+    metricEn: 'DSERT Aligned',
+  },
+  {
+    id: 'fac-ict',
+    titleKn: 'ಸ್ಮಾರ್ಟ್ ತರಗತಿ & ICT ಕಂಪ್ಯೂಟರ್ ಲ್ಯಾಬ್',
+    titleEn: 'Smart Classrooms & ICT Computer Lab',
+    descKn:
+      'ಡಿಜಿಟಲ್ ಸ್ಮಾರ್ಟ್ ಬೋರ್ಡ್‌ಗಳು ಮತ್ತು ಇಂಟರ್ನೆಟ್ ಸಂಪರ್ಕಿತ ಕಂಪ್ಯೂಟರ್ ಕಾರ್ಯಕ್ಷೇತ್ರಗಳೊಂದಿಗೆ ಪ್ರಾಯೋಗಿಕ ಕಂಪ್ಯೂಟರ್ ಹಾಗೂ SSP ಇ-ದೃಢೀಕರಣ ನೆರವು.',
+    descEn:
+      'Interactive smart classroom boards and internet-connected computer workstations supporting digital literacy and SSP scholarship helpdesk.',
+    metricKn: '6 ಸ್ಮಾರ್ಟ್ ಕ್ಲಾಸ್ · 24 ಕಂಪ್ಯೂಟರ್',
+    metricEn: '6 Smart Classes · 24 Computers',
+  },
+  {
+    id: 'fac-mdm',
+    titleKn: 'ಅಕ್ಷರ ದಾಸೋಹ ಭೋಜನ ಶಾಲೆ & RO ಕುಡಿಯುವ ನೀರು',
+    titleEn: 'Akshara Dasoha Kitchen & RO Drinking Water',
+    descKn:
+      'ಸ್ವಚ್ಛ ಅಡುಗೆ ಕೋಣೆ, ಸ್ಟೀಲ್ ತಟ್ಟೆಗಳ ವಿತರಣೆ, RO ಶುದ್ಧ ಕುಡಿಯುವ ನೀರಿನ ಘಟಕ ಹಾಗೂ SDMC ಪೋಷಕರ ದೈನಂದಿನ ಗುಣಮಟ್ಟ ತಪಾಸಣೆ.',
+    descEn:
+      'Hygienic kitchen facility, stainless steel dining service, RO-purified drinking water unit, and daily SDMC parent tasting verification.',
+    metricKn: 'RO ಶುದ್ಧೀಕೃತ ನೀರು',
+    metricEn: 'RO Purified Water',
+  },
+  {
+    id: 'fac-campus',
+    titleKn: 'ಕ್ರೀಡಾಂಗಣ, ರಂಗಮಂದಿರ & ಮಳೆನೀರು ಕೊಯ್ಲು',
+    titleEn: 'Sports Ground, Amphitheater & Rainwater Harvesting',
+    descKn:
+      'ಖೋ-ಖೋ, ವಾಲಿಬಾಲ್ ಮತ್ತು ಅಥ್ಲೆಟಿಕ್ಸ್ ತರಬೇತಿಗೆ ಕ್ರೀಡಾಂಗಣ, ಸಾಂಸ್ಕೃತಿಕ ಕಾರ್ಯಕ್ರಮಗಳಿಗೆ ರಂಗಮಂದಿರ ಹಾಗೂ ಹಸಿರು ಪರಿಸರ ಸಂರಕ್ಷಣಾ ವ್ಯವಸ್ಥೆ.',
+    descEn:
+      'Dedicated playground for Kho-Kho, Volleyball, and athletics, school amphitheater for cultural events, and rooftop rainwater harvesting.',
+    metricKn: 'ಇಕೋ ಕ್ಲಬ್ & ಕ್ರೀಡೆ',
+    metricEn: 'Eco Club & Sports',
+  },
+];
+
+
 

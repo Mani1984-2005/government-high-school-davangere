@@ -91,6 +91,47 @@ export interface GalleryPhoto {
   captionEn: string;
 }
 
+export interface StudyMaterial {
+  titleKn: string;
+  titleEn: string;
+  subjectKn: string;
+  subjectEn: string;
+  fileSize: string;
+  year: string;
+  mediumKn: string;
+  mediumEn: string;
+}
+
+export interface SchoolFacility {
+  id: string;
+  titleKn: string;
+  titleEn: string;
+  descKn: string;
+  descEn: string;
+  metricKn?: string;
+  metricEn?: string;
+}
+
+export interface AcademicCalendarItem {
+  id: string;
+  periodKn: string;
+  periodEn: string;
+  titleKn: string;
+  titleEn: string;
+  descKn: string;
+  descEn: string;
+  category: 'admission' | 'exam' | 'holiday' | 'event';
+}
+
+export interface FaqItem {
+  id: string;
+  category: 'admissions' | 'academics' | 'welfare' | 'certificates';
+  questionKn: string;
+  questionEn: string;
+  answerKn: string;
+  answerEn: string;
+}
+
 export interface ServiceApplication {
   appNo: string;
   type: string;
@@ -167,4 +208,3 @@ export interface StudentProgressRecord {
   headmasterRemarksKn: string;
   headmasterRemarksEn: string;
 }
-

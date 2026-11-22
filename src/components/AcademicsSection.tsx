@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Language } from '../types';
 import { UI_STRINGS } from '../data/translations';
 import { BELL_SCHEDULE, SSLC_STUDY_MATERIALS } from '../data/schoolData';
+import { SCHOOL_MEDIA } from '../assets/media';
 
 interface AcademicsSectionProps {
   lang: Language;
@@ -101,9 +102,11 @@ export const AcademicsSection: React.FC<AcademicsSectionProps> = ({ lang }) => {
             <div className="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-xs">
               <div className="relative h-44 sm:h-52">
                 <img
-                  src="/src/assets/images/school_science_lab_1792079078684.jpg"
+                  src={SCHOOL_MEDIA.scienceLab}
                   alt="High School Science Laboratory"
                   className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
                   referrerPolicy="no-referrer"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-900/30 to-transparent flex items-end p-4">

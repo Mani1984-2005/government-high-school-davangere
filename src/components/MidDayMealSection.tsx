@@ -2,6 +2,7 @@ import React from 'react';
 import { Language } from '../types';
 import { UI_STRINGS } from '../data/translations';
 import { MID_DAY_MEAL_WEEK } from '../data/schoolData';
+import { SCHOOL_MEDIA } from '../assets/media';
 
 interface MidDayMealSectionProps {
   lang: Language;
@@ -48,9 +49,11 @@ export const MidDayMealSection: React.FC<MidDayMealSectionProps> = ({ lang }) =>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center mb-10 bg-white rounded-lg border border-slate-200 p-4 sm:p-6 shadow-xs">
           <div className="lg:col-span-5 relative rounded-lg overflow-hidden border border-slate-200 shadow-sm">
             <img
-              src="/src/assets/images/akshara_dasoha_meal_1792079078376.jpg"
+              src={SCHOOL_MEDIA.midDayMeal}
               alt="Akshara Dasoha Mid-Day Meal at Government High School Davangere"
               className="w-full h-64 sm:h-72 object-cover"
+              loading="lazy"
+              decoding="async"
               referrerPolicy="no-referrer"
             />
             <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/85 via-slate-900/40 to-transparent p-3 text-white text-xs">

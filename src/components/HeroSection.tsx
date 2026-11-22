@@ -2,6 +2,7 @@ import React from 'react';
 import { Language } from '../types';
 import { UI_STRINGS } from '../data/translations';
 import { SCHOOL_INFO, MID_DAY_MEAL_WEEK } from '../data/schoolData';
+import { SCHOOL_MEDIA } from '../assets/media';
 
 interface HeroSectionProps {
   lang: Language;
@@ -103,7 +104,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ lang, onOpenServiceMod
             {/* Campus Image Frame */}
             <div className="relative rounded-lg overflow-hidden border-2 border-slate-600 shadow-xl group">
               <img
-                src="/src/assets/images/hero_school_campus_1792079077456.jpg"
+                src={SCHOOL_MEDIA.campus}
                 alt="Government High School Davangere Campus"
                 className="w-full h-48 sm:h-56 object-cover transform group-hover:scale-102 transition-transform duration-300"
                 referrerPolicy="no-referrer"
